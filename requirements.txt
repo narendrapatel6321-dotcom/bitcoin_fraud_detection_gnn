@@ -1,0 +1,9 @@
+tensorflow>=2.21
+numpy
+pandas
+scikit-learn
+matplotlib
+seaborn
+tqdm
+kaggle
+ 
