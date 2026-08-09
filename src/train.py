@@ -210,13 +210,23 @@ def train_gnn(
     return model, history
 
 
-def train_rf(graph: EllipticGraph):
+def train_rf(
+    graph: EllipticGraph,
+    n_estimators: int = 300,
+    max_depth=None,
+    random_state: int = 42,
+):
     """Train the graph-free Random Forest baseline on training nodes."""
     X_train = graph.x.numpy()[graph.train_mask.numpy()]
     y_train = graph.y.numpy()[graph.train_mask.numpy()]
 
     # Class imbalance is handled by class_weight="balanced" in the RF builder.
-    clf = build_random_forest()
+    clf = build_random_forest(
+        n_estimators=n_estimators,
+        max_depth=max_depth,
+        random_state=random_state,
+    )
+
     clf.fit(
         X_train,
         y_train,
