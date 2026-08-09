@@ -83,28 +83,41 @@ def load_elliptic_csvs(
         .values
     )
 
-    # Edges are symmetrized later in _build_sparse_adjacency().
-    edge_df = pd.read_csv(edge_path, header=None, names=["src", "dst"])
-    tx_id_to_idx = {tx_id: i for i, tx_id in enumerate(tx_ids)}
+    edge_df = pd.read_csv(edge_path)
+
+    edge_df.columns = ["src", "dst"]
+
+    edge_df["src"] = edge_df["src"].astype(np.int64)
+    edge_df["dst"] = edge_df["dst"].astype(np.int64)
+
+    tx_ids = tx_ids.astype(np.int64)
+
+    tx_id_to_idx = {
+        tid: i
+        for i, tid in enumerate(tx_ids)
+    }
 
     valid = (
         edge_df["src"].isin(tx_id_to_idx)
         & edge_df["dst"].isin(tx_id_to_idx)
     )
 
-    invalid_edge_count = int((~valid).sum())
-    if invalid_edge_count:
+    dropped = int((~valid).sum())
+    edge_df = edge_df[valid]
+
+    if dropped:
         print(
-            f"Edges   : dropped {invalid_edge_count:,} edges referencing "
+            f"Edges   : dropped {dropped:,} edges referencing "
             "transactions absent from the feature file"
         )
 
-    edge_df = edge_df[valid]
+    src = edge_df["src"].map(tx_id_to_idx).to_numpy()
+    dst = edge_df["dst"].map(tx_id_to_idx).to_numpy()
 
-    src = edge_df["src"].map(tx_id_to_idx).values
-    dst = edge_df["dst"].map(tx_id_to_idx).values
-
-    edge_pairs = np.stack([src, dst], axis=1).astype(np.int64)
+    edge_pairs = np.stack(
+        [src, dst],
+        axis=1,
+    ).astype(np.int64)
 
     return raw_feat, label_series, time_steps, tx_ids, edge_pairs
 
