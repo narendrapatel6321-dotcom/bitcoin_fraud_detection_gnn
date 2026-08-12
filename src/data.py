@@ -267,8 +267,10 @@ class EllipticGraph:
 
     @property
     def num_edges(self) -> int:
-        return int(self.edge_index.shape[1])
-
+         return int(self.edge_index.shape[1])
+    @property
+    def gat_edge_index(self):
+        return self.edge_index
 
 def build_graph(data_dir: str) -> EllipticGraph:
     """
