@@ -101,6 +101,7 @@ def train_gnn(
     optimizer = tf.keras.optimizers.Adam(
         learning_rate=lr,
         weight_decay=weight_decay,
+        clipnorm = 1.0,
     )
 
     y_train = tf.boolean_mask(
